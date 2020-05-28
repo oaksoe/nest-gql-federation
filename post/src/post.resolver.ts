@@ -1,11 +1,10 @@
-import { Query, Resolver, Parent, ResolveProperty } from '@nestjs/graphql';
+import { Query, Resolver, Parent, ResolveProperty, ResolveReference } from '@nestjs/graphql';
 
 @Resolver('Post')
 export class PostsResolvers {
   constructor() {}
 
-  @Query('getPosts')
-  getPosts() {
+  populatePosts() {
     return [{
         id: '1',
         title: 'first post',
@@ -19,9 +18,23 @@ export class PostsResolvers {
     }];
   }
 
+  @Query('getPosts')
+  getPosts() {
+    return this.populatePosts();
+  }
+
   @ResolveProperty('user')
   getUser(@Parent() post) {
-    console.log('yayyyyyyyyyyyyy 0', post)
     return { __typename: 'User', id: post.userId };
   }
+
+  @ResolveReference()
+  resolveReference(reference: { __typename: string; id: string }) {
+    return this.populatePosts()[0];
+  }
+
+  // @ResolveReference()
+  // resolveReference(reference: { __typename: string; id: string }) {
+  //   return this.populatePosts()[0];
+  // }
 }
